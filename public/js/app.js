@@ -65871,7 +65871,10 @@ function RenderRows(props) {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", {
       key: todo.id
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, todo.id), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, todo.title), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-      className: "btn btn-secondary"
+      className: "btn btn-secondary",
+      onClick: function onClick() {
+        return props.deleteTask(todo);
+      }
     }, "\u5B8C\u4E86")));
   });
 }
@@ -65889,8 +65892,12 @@ var TodoApp = /*#__PURE__*/function (_Component) {
 
     _this = _super.call(this);
     _this.state = {
-      todos: []
+      todos: [],
+      todo: ''
     };
+    _this.inputChange = _this.inputChange.bind(_assertThisInitialized(_this));
+    _this.addTodo = _this.addTodo.bind(_assertThisInitialized(_this));
+    _this.deleteTask = _this.deleteTask.bind(_assertThisInitialized(_this));
     return _this;
   } //コンポーネントがマウントされた時点で初期描画用のtodosをAPIから取得
 
@@ -65908,15 +65915,78 @@ var TodoApp = /*#__PURE__*/function (_Component) {
       })["catch"](function (error) {
         console.log(error);
       });
+    }
+  }, {
+    key: "inputChange",
+    value: function inputChange(event) {
+      switch (event.target.name) {
+        case 'todo':
+          this.setState({
+            todo: event.target.value
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+  }, {
+    key: "addTodo",
+    value: function addTodo() {
+      var _this3 = this;
+
+      if (this.state.todo == '') {
+        return;
+      }
+
+      axios.post('/api/add', {
+        title: this.state.todo
+      }).then(function (res) {
+        _this3.setState({
+          todos: res.data,
+          todo: ''
+        });
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    }
+  }, {
+    key: "deleteTask",
+    value: function deleteTask(todo) {
+      var _this4 = this;
+
+      axios.post('/api/del', {
+        id: todo.id
+      }).then(function (res) {
+        _this4.setState({
+          todos: res.data
+        });
+      })["catch"](function (error) {
+        console.log(error);
+      });
     } //テーブルの骨組みを描画し、行の描画はRenderRowsに任せる（その際、todosを渡す）
 
   }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("table", {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "form-group mt-4"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
+        htmlFor: "todo"
+      }, "\u65B0\u898FTodo"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        type: "text",
+        className: "form-control",
+        name: "todo",
+        value: this.state.todo,
+        onChange: this.inputChange
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+        className: "btn btn-primary",
+        onClick: this.addTodo
+      }, "\u767B\u9332"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("table", {
         className: "table mt-5"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "\u30BF\u30B9\u30AF"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "\u5B8C\u4E86"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RenderRows, {
-        todos: this.state.todos
+        todos: this.state.todos,
+        deleteTask: this.deleteTask
       }))));
     }
   }]);

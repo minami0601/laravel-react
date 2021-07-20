@@ -9,7 +9,7 @@ function RenderRows(props){
             <tr key={todo.id}>
                 <td>{todo.id}</td>
                 <td>{todo.title}</td>
-                <td><button className="btn btn-secondary">完了</button></td>
+                <td><button className="btn btn-secondary" onClick={() => props.deleteTask(todo)}>完了</button></td>
             </tr>
         );
     });
@@ -21,8 +21,12 @@ export default class TodoApp extends Component {
     constructor(){
         super();
         this.state = {
-            todos: []
-        }
+            todos: [],
+            todo: ''
+        };
+        this.inputChange = this.inputChange.bind(this);
+        this.addTodo = this.addTodo.bind(this);
+        this.deleteTask = this.deleteTask.bind(this);
     }
 
     //コンポーネントがマウントされた時点で初期描画用のtodosをAPIから取得
@@ -40,10 +44,64 @@ export default class TodoApp extends Component {
             })
     }
 
+    inputChange(event){
+        switch(event.target.name){
+            case 'todo':
+                this.setState({
+                    todo: event.target.value
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
+    addTodo(){
+        if(this.state.todo == ''){
+            return;
+        }
+
+        axios
+            .post('/api/add', {
+                title: this.state.todo
+            })
+            .then((res) => {
+                this.setState({
+                    todos: res.data,
+                    todo: ''
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+    deleteTask(todo){
+        axios
+            .post('/api/del', {
+                id: todo.id
+            })
+            .then((res) => {
+                this.setState({
+                    todos: res.data
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
     //テーブルの骨組みを描画し、行の描画はRenderRowsに任せる（その際、todosを渡す）
     render() {
         return (
             <React.Fragment>
+                {/* add from */}
+                <div className="form-group mt-4"> 
+                    <label htmlFor="todo">新規Todo</label>
+                    <input type="text" className="form-control" name="todo" value={this.state.todo} onChange={this.inputChange}/>
+                </div>
+                <button className="btn btn-primary" onClick={this.addTodo}>登録</button>
+
                 <table className="table mt-5">
                     <thead>
                         <tr>
@@ -56,6 +114,7 @@ export default class TodoApp extends Component {
                         {/* 行の描画 */}
                         <RenderRows
                             todos={this.state.todos}
+                            deleteTask={this.deleteTask}
                         />
                     </tbody>
                 </table>
